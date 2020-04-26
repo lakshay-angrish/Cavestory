@@ -25,7 +25,8 @@ class AnimatedSprite: public Sprite {
         void reset_animation();
         void stop_animation();
         void set_visible(bool visible);
-        virtual void animation_done(std::string current_animation);
+        virtual void animation_done(std::string current_animation) = 0;
+        virtual void setup_animation() = 0;
 
     public:
         AnimatedSprite();
@@ -34,7 +35,6 @@ class AnimatedSprite: public Sprite {
         void play_animation(std::string animation, bool once = false);
         void update(int elapsed_time);
         void draw(Graphics& graphics, int x, int y);
-        virtual void setup_animation();
 };
 
 #endif

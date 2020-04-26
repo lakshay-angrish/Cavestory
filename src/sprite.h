@@ -7,13 +7,11 @@
 class Graphics;
 
 class Sprite {
-    private:
-        double _x;
-        double _y;
-
     protected:
         SDL_Texture* _sprite_sheet;
         SDL_Rect _source_rect;
+        double _x;
+        double _y;
 
     public:
         // source_x/y -- (x, y) of sprite in the sprite sheet
