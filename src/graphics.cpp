@@ -1,7 +1,8 @@
 #include "graphics.h"
+#include "globals.h"
 
 Graphics::Graphics () {
-    SDL_CreateWindowAndRenderer(window_width, window_height, 0, &this->_window, &this->_renderer);
+    SDL_CreateWindowAndRenderer(globals::SCREEN_WIDTH, globals::SCREEN_HEIGHT, 0, &this->_window, &this->_renderer);
     SDL_SetWindowTitle(this->_window, "Cavestory");
 }
 

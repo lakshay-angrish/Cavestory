@@ -6,9 +6,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-const int window_width = 640;
-const int window_height = 480;
-
 class Graphics {
     private:
         SDL_Window* _window;

@@ -1,5 +1,6 @@
 #include "sprite.h"
 #include "graphics.h"
+#include "globals.h"
 
 #include <iostream>
 
@@ -23,7 +24,7 @@ Sprite::~Sprite() {}
 
 void Sprite::draw (Graphics& graphics, int x, int y) {
     SDL_Rect destination_rect = {
-        x, y, this->_source_rect->w, this->_source_rect->h
+        x, y, this->_source_rect->w * globals::SPRITE_SCALE, this->_source_rect->h * globals::SPRITE_SCALE
     };
 
     graphics.blit_surface(this->_sprite_sheet, this->_source_rect, &destination_rect);
