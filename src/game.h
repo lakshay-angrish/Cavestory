@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "player.h"
+#include "level.h"
 
 class Graphics;
 
@@ -11,6 +12,7 @@ class Game {
         void update (double elapsed_time);
         void draw (Graphics& graphics);
         Player _player;
+        Level _level;
     public:
         Game();
         ~Game();
