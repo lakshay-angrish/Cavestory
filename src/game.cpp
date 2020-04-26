@@ -47,10 +47,21 @@ void Game::game_loop() {
 
         if (input.was_key_pressed(SDL_SCANCODE_ESCAPE)) {
             return;
+
+        } else if (input.is_key_held(SDL_SCANCODE_LEFT)) {
+            this->_player.move_left();
+
+        } else if (input.is_key_held(SDL_SCANCODE_RIGHT)) {
+            this->_player.move_right();
+
+        }
+        if (!input.is_key_held(SDL_SCANCODE_LEFT) && !input.is_key_held(SDL_SCANCODE_RIGHT)) {
+            this->_player.stop_moving();
         }
 
         const int CURRENT_TIME_MS = SDL_GetTicks();
         int ELAPSED_TIME = CURRENT_TIME_MS - LAST_UPDATE_TIME;
+        LAST_UPDATE_TIME = CURRENT_TIME_MS;
         this->update(std::min(ELAPSED_TIME, MAX_FRAME_TIME));
 
         this->draw(graphics);

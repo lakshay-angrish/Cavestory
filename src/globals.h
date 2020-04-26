@@ -7,6 +7,13 @@ namespace globals {
     const double SPRITE_SCALE = 2.0;
 }
 
+enum Direction {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN
+};
+
 class Vector2 {
     public:
         int x;
