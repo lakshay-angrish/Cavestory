@@ -1,5 +1,12 @@
 #include "level.h"
 #include "graphics.h"
+#include "tinyxml2.h"
+
+#include <sstream>
+#include <algorithm>
+#include <cmath>
+
+using namespace tinyxml2;
 
 Level::Level() {}
 
@@ -14,8 +21,91 @@ _size(Vector2()) {
 Level::~Level() {}
 
 void Level::load_map(std::string map_name, Graphics &graphics) {
-    this->background_texture = SDL_CreateTextureFromSurface(graphics.get_renderer(), graphics.load_image("../assets/backgrounds/bkBlue.png"));
-    this->_size = Vector2(1280, 960);
+    XMLDocument doc;
+    std::stringstream ss;
+    ss << "../assets/maps/" << map_name << ".tmx";
+    doc.LoadFile(ss.str().c_str());
+
+    XMLElement* map_node = doc.FirstChildElement("map");
+    int width, height;
+    map_node->QueryIntAttribute("width", &width);   //in terms of number of tiles
+    map_node->QueryIntAttribute("height", &height);
+    this->_size = Vector2(width, height);
+
+    int tile_width, tile_height;
+    map_node->QueryIntAttribute("tilewidth", &tile_width);
+    map_node->QueryIntAttribute("tileheight", &tile_height);
+    this->_tile_size = Vector2(tile_width, tile_height);
+
+
+    XMLElement* p_tile_set = map_node->FirstChildElement("tileset");
+    while (p_tile_set) {
+        const char* source = p_tile_set->FirstChildElement("image")->Attribute("source");
+        int first_gid;
+        p_tile_set->QueryIntAttribute("firstgid", &first_gid);
+
+        std::stringstream ss;
+        ss << "../assets/tilesets/" << source;
+        SDL_Texture* tex = SDL_CreateTextureFromSurface(graphics.get_renderer(), graphics.load_image(ss.str()));
+        this->_tilesets.push_back(Tileset(tex, first_gid));
+
+        p_tile_set = p_tile_set->NextSiblingElement("tileset");
+    }
+
+    XMLElement* p_layer = map_node->FirstChildElement("layer");
+    while (p_layer) {
+        XMLElement* p_data = p_layer->FirstChildElement("data");
+        while (p_data) {
+            XMLElement* p_tile = p_data->FirstChildElement("tile");
+            int tile_counter = 0;
+            while (p_tile) {
+                if (p_tile->IntAttribute("gid") == 0) {
+                    tile_counter++;
+                    if (p_tile->NextSiblingElement("tile")) {
+                        p_tile = p_tile->NextSiblingElement("tile");
+                        continue;
+                    } else  break;
+                }
+
+                int gid = p_tile->IntAttribute("gid");
+                Tileset tls;
+                for (int i = 0; i != this->_tilesets.size(); i++) {
+                    if (this->_tilesets[i].first_gid <= gid) {
+                        tls = this->_tilesets[i];
+                        break;
+                    }
+                }
+
+                if (tls.first_gid == -1) {
+                    tile_counter++;
+                    if (p_tile->NextSiblingElement("tile")) {
+                        p_tile = p_tile->NextSiblingElement("tile");
+                        continue;
+                    } else  break;
+                }
+
+                //current tile position
+                int xx = (tile_counter % width) * tile_width;
+                int yy = (tile_counter / width) * tile_height;
+                Vector2 final_tile_position(xx, yy);
+
+                //tile position in the tileset
+                int tileset_width, tileset_height;
+                SDL_QueryTexture(tls.Texture, NULL, NULL, &tileset_width, &tileset_height);
+                int tsxx = (gid % (tileset_width / tile_width) - 1) * tile_width;
+                int tsyy = (gid / (tileset_width / tile_width)) * tile_height;
+                Vector2 final_tileset_position(tsxx, tsyy);
+
+                Tile tile(tls.Texture, Vector2(tile_width, tile_height), final_tileset_position, final_tile_position);
+                this->_tile_list.push_back(tile);
+                tile_counter++;
+
+                p_tile = p_tile->NextSiblingElement("tile");
+            }
+            p_data = p_data->NextSiblingElement("data");
+        }
+        p_layer = p_layer->NextSiblingElement("layer");
+    }
 }
 
 void Level::update(int elapsed_time) {
@@ -23,16 +113,7 @@ void Level::update(int elapsed_time) {
 }
 
 void Level::draw(Graphics &graphics) {
-    SDL_Rect source_rect = { 0, 0, 64, 64 };
-    SDL_Rect destination_rect;
-
-    for (int i = 0; i != this->_size.x / 64; i++) {
-        for (int j = 0; j != this->_size.y / 64; j++) {
-            destination_rect.x = i * 64;
-            destination_rect.y = j * 64;
-            destination_rect.w = 64;
-            destination_rect.h = 64;
-            graphics.blit_surface(this->background_texture, &source_rect, &destination_rect);
-        }
+    for (int i = 0; i != this->_tile_list.size(); i++) {
+        this->_tile_list[i].draw(graphics);
     }
 }
