@@ -25,8 +25,9 @@ void Game::game_loop() {
     Input input;
     SDL_Event event;
 
-    this->_player = Player(graphics, 100, 100);
+    //level needs to be initialized first
     this->_level = Level("Map 1", Vector2(100, 100), graphics);
+    this->_player = Player(graphics, this->_level.get_player_spawn_point());
 
     int LAST_UPDATE_TIME = SDL_GetTicks();
     while (true) {
@@ -72,6 +73,12 @@ void Game::game_loop() {
 void Game::update (double elapsed_time) {
     this->_level.update(elapsed_time);
     this->_player.update(elapsed_time);
+
+    //check for collisions;
+    std::vector<Rectangle> others = this->_level.check_tile_collisions(this->_player.get_bounding_box());
+    if (others.size() > 0) {
+        this->_player.handle_tile_collisions(others);
+    }
 }
 
 void Game::draw (Graphics& graphics) {

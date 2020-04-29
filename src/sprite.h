@@ -1,6 +1,7 @@
 #ifndef SPRITE_H
 #define SPRITE_H
 
+#include "rectangle.h"
 #include <string>
 #include <SDL2/SDL.h>
 
@@ -12,6 +13,7 @@ class Sprite {
         SDL_Rect _source_rect;
         double _x;
         double _y;
+        Rectangle _bounding_box;
 
     public:
         // source_x/y -- (x, y) of sprite in the sprite sheet
@@ -22,6 +24,9 @@ class Sprite {
         virtual ~Sprite();
         virtual void update();
         void draw (Graphics& graphics, int x, int y);
+
+        const Rectangle get_bounding_box() const;
+        const sides::Side get_collision_side(const Rectangle& other) const;
 
 };
 

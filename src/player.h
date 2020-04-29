@@ -5,6 +5,8 @@
 
 namespace player_constants {
     const double WALK_SPEED = 0.2;
+    const double GRAVITY = 0.002;
+    const double GRAVITY_CAP = 0.8;
 }
 
 class Graphics;
@@ -15,9 +17,11 @@ class Player: public AnimatedSprite {
     double _dy;
     Direction _facing;
 
+    bool _grounded;
+
     public:
         Player();
-        Player(Graphics& graphics, double x, double y);
+        Player(Graphics& graphics, Vector2 spawn_point);
         void draw(Graphics& graphics);
         void update(double elapsed_time);
 
@@ -27,6 +31,11 @@ class Player: public AnimatedSprite {
         void move_left();
         void move_right();
         void stop_moving();
+
+        const double get_x() const;
+        const double get_y() const;
+
+        void handle_tile_collisions(std::vector<Rectangle>& others);
 };
 
 #endif

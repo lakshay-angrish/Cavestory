@@ -106,6 +106,46 @@ void Level::load_map(std::string map_name, Graphics &graphics) {
         }
         p_layer = p_layer->NextSiblingElement("layer");
     }
+    //parse collisions
+    XMLElement* p_objectgroup = map_node->FirstChildElement("objectgroup");
+    while (p_objectgroup) {
+        const char* group_name = p_objectgroup->Attribute("name");
+        if (std::string(group_name) == "collisions") {
+            XMLElement* p_object = p_objectgroup->FirstChildElement("object");
+            while (p_object) {
+                double x = p_object->DoubleAttribute("x");
+                double y = p_object->DoubleAttribute("y");
+                double width = p_object->DoubleAttribute("width");
+                double height = p_object->DoubleAttribute("height");
+
+                this->_collision_rects.push_back(Rectangle(
+                    ceil(x) * globals::SPRITE_SCALE,
+                    ceil(y) * globals::SPRITE_SCALE,
+                    ceil(width) * globals::SPRITE_SCALE,
+                    ceil(height) * globals::SPRITE_SCALE
+                ));
+
+                p_object = p_object->NextSiblingElement("object");
+            }
+
+        } else if (std::string(group_name) == "spawn point") {
+            XMLElement* p_object = p_objectgroup->FirstChildElement("object");
+            while (p_object) {
+                double x = p_object->DoubleAttribute("x");
+                double y = p_object->DoubleAttribute("y");
+                const char* name = p_object->Attribute("name");
+
+                if (std::string(name) == "player") {
+                    this->_spawn_point = Vector2(ceil(x) * globals::SPRITE_SCALE, ceil(y) * globals::SPRITE_SCALE);
+                    break;
+                }
+
+                p_object = p_object->NextSiblingElement("object");
+            }
+        }
+
+        p_objectgroup = p_objectgroup->NextSiblingElement("objectgroup");
+    }
 }
 
 void Level::update(int elapsed_time) {
@@ -116,4 +156,18 @@ void Level::draw(Graphics &graphics) {
     for (int i = 0; i != this->_tile_list.size(); i++) {
         this->_tile_list[i].draw(graphics);
     }
+}
+
+std::vector<Rectangle> Level::check_tile_collisions(const Rectangle &other) {
+    std::vector<Rectangle> others;
+    for (auto rect: this->_collision_rects) {
+        if (rect.collides_with(other)) {
+            others.push_back(rect);
+        }
+    }
+    return others;
+}
+
+const Vector2 Level::get_player_spawn_point() const {
+    return this->_spawn_point;
 }

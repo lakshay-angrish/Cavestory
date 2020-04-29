@@ -3,12 +3,12 @@
 
 #include "globals.h"
 #include "tile.h"
+#include "rectangle.h"
 #include <string>
 #include <vector>
 
 class Graphics;
 struct SDL_Texture;
-struct SDL_Rect;
 struct Tileset;
 
 class Level {
@@ -21,6 +21,7 @@ class Level {
 
         std::vector<Tile> _tile_list;
         std::vector<Tileset> _tilesets;
+        std::vector<Rectangle> _collision_rects;
 
         void load_map(std::string map_name, Graphics& graphics);
 
@@ -30,6 +31,9 @@ class Level {
         ~Level();
         void update(int elapsed_time);
         void draw(Graphics& graphics);
+
+        std::vector<Rectangle> check_tile_collisions(const Rectangle& other);
+        const Vector2 get_player_spawn_point() const;
 };
 
 struct Tileset {
