@@ -69,13 +69,18 @@ void Player::handle_tile_collisions(std::vector<Rectangle> &others) {
         sides::Side side = this->get_collision_side(other);
         switch (side) {
             case sides::TOP:
-                this->_y = other.get_bottom() + 1;
                 this->_dy = 0;
+                this->_y = other.get_bottom() + 1;
+                if (this->_grounded) {
+                    this->_dx = 0;
+                    this->_x -= this->_facing == RIGHT ? 0.5 : -0.5;
+                }
                 break;
 
             case sides::BOTTOM:
                 this->_y = other.get_top() - this->_bounding_box.get_height() - 1;
                 this->_dy = 0;
+                this->_grounded = true;
                 break;
 
             case sides::LEFT:
@@ -87,6 +92,20 @@ void Player::handle_tile_collisions(std::vector<Rectangle> &others) {
                 break;
 
             default:    break;
+        }
+    }
+}
+
+void Player::handle_slope_collisions(std::vector<Slope> &others) {
+    for (auto other: others) {
+        //y = mx + b
+        int b = other.get_p1().y - (other.get_slope() * fabs(other.get_p1().x));
+        int center_x = this->_bounding_box.get_center_x();
+        int new_y = (other.get_slope() * center_x) + b - 8;
+
+        if (this->_grounded) {
+            this->_y = new_y - this->_bounding_box.get_height();
+            this->_grounded = true;
         }
     }
 }

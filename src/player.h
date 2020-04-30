@@ -2,6 +2,7 @@
 #define PLAYER_H
 
 #include "animated_sprite.h"
+#include "slope.h"
 
 namespace player_constants {
     const double WALK_SPEED = 0.2;
@@ -36,6 +37,7 @@ class Player: public AnimatedSprite {
         const double get_y() const;
 
         void handle_tile_collisions(std::vector<Rectangle>& others);
+        void handle_slope_collisions(std::vector<Slope>& others);
 };
 
 #endif

@@ -1,6 +1,7 @@
 #include "game.h"
 #include "graphics.h"
 #include "input.h"
+#include "slope.h"
 
 #include <SDL2/SDL.h>
 
@@ -78,6 +79,11 @@ void Game::update (double elapsed_time) {
     std::vector<Rectangle> others = this->_level.check_tile_collisions(this->_player.get_bounding_box());
     if (others.size() > 0) {
         this->_player.handle_tile_collisions(others);
+    }
+    //slopes
+    std::vector<Slope> other_slopes = this->_level.check_slope_collisions(this->_player.get_bounding_box());
+    if (other_slopes.size() > 0) {
+        this->_player.handle_slope_collisions(other_slopes);
     }
 }
 
