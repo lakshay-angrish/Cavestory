@@ -12,6 +12,8 @@
 #include <vector>
 
 class Graphics;
+class Enemy;
+class Player;
 struct SDL_Texture;
 struct Tileset;
 
@@ -33,6 +35,8 @@ class Level {
 
         std::vector<Door> _doors;
 
+        std::vector<Enemy*> _enemies;
+
         void load_map(std::string map_name, Graphics& graphics);
         Vector2 get_tileset_position(Tileset tls, int gid, int tile_width, int tile_height);
 
@@ -40,12 +44,14 @@ class Level {
         Level();
         Level(std::string map_name, Graphics& graphics);
         ~Level();
-        void update(int elapsed_time);
+        void update(int elapsed_time, Player& player);
         void draw(Graphics& graphics);
 
         std::vector<Rectangle> check_tile_collisions(const Rectangle& other);
         std::vector<Slope> check_slope_collisions(const Rectangle& other);
         std::vector<Door> check_door_collisions(const Rectangle& other);
+        std::vector<Enemy*> check_enemy_collisions(const Rectangle& other);
+
         const Vector2 get_player_spawn_point() const;
 };
 

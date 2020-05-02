@@ -23,7 +23,7 @@ class HUD {
         HUD();
         HUD(Graphics& graphics, Player& player);
 
-        void update(int elapsed_time);
+        void update(int elapsed_time, Player& player);
         void draw(Graphics& graphics);
 };
 

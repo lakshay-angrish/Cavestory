@@ -178,3 +178,13 @@ void Player::handle_door_collision(std::vector<Door> &others, Level& level, Grap
         }
     }
 }
+
+void Player::handle_enemy_collisions(std::vector<Enemy*> &others) {
+    for (auto other: others) {
+        other->touch_player(this);
+    }
+}
+
+void Player::gain_health(int amount) {
+    this->_current_health += amount;
+}

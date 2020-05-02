@@ -94,9 +94,9 @@ void Game::game_loop() {
 }
 
 void Game::update (double elapsed_time) {
-    this->_level.update(elapsed_time);
     this->_player.update(elapsed_time);
-    this->_hud.update(elapsed_time);
+    this->_level.update(elapsed_time, this->_player);
+    this->_hud.update(elapsed_time, this->_player);
 
     //check for collisions;
     std::vector<Rectangle> others = this->_level.check_tile_collisions(this->_player.get_bounding_box());
@@ -112,6 +112,11 @@ void Game::update (double elapsed_time) {
     std::vector<Door> other_doors = this->_level.check_door_collisions(this->_player.get_bounding_box());
     if (other_doors.size() > 0) {
         this->_player.handle_door_collision(other_doors, this->_level, this->_graphics);
+    }
+    //enemies
+    std::vector<Enemy*> enemies = this->_level.check_enemy_collisions(this->_player.get_bounding_box());
+    if (enemies.size() > 0) {
+        this->_player.handle_enemy_collisions(enemies);
     }
 }
 

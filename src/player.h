@@ -5,6 +5,7 @@
 #include "slope.h"
 #include "door.h"
 #include "level.h"
+#include "enemy.h"
 
 namespace player_constants {
     const double WALK_SPEED = 0.2;
@@ -56,6 +57,9 @@ class Player: public AnimatedSprite {
         void handle_tile_collisions(std::vector<Rectangle>& others);
         void handle_slope_collisions(std::vector<Slope>& others);
         void handle_door_collision(std::vector<Door>& others, Level& level, Graphics& graphics);
+        void handle_enemy_collisions(std::vector<Enemy*>& others);
+
+        void gain_health(int amount);
 };
 
 #endif

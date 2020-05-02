@@ -3,6 +3,8 @@
 #include "tinyxml2.h"
 #include "utils.h"
 #include "slope.h"
+#include "player.h"
+#include "bat.h"
 
 #include <sstream>
 #include <algorithm>
@@ -246,15 +248,33 @@ void Level::load_map(std::string map_name, Graphics &graphics) {
                 }
                 p_object = p_object->NextSiblingElement("object");
             }
+        } else if (group_name == "enemies") {
+            XMLElement* p_object = p_objectgroup->FirstChildElement("object");
+            while (p_object) {
+                double x = p_object->DoubleAttribute("x");
+                double y = p_object->DoubleAttribute("y");
+
+                const char* name = p_object->Attribute("name");
+                std::string p_name(name);
+                if (p_name == "bat") {
+                    this->_enemies.push_back(new Bat(graphics, Vector2(std::floor(x) * globals::SPRITE_SCALE, std::floor(y) * globals::SPRITE_SCALE)));
+                }
+
+                p_object = p_object->NextSiblingElement("object");
+            }
         }
 
         p_objectgroup = p_objectgroup->NextSiblingElement("objectgroup");
     }
 }
 
-void Level::update(int elapsed_time) {
+void Level::update(int elapsed_time, Player& player) {
     for (int i = 0; i != this->_animated_tile_list.size(); i++) {
         this->_animated_tile_list[i].update(elapsed_time);
+    }
+
+    for (int i = 0; i != this->_enemies.size(); i++) {
+        this->_enemies[i]->update(elapsed_time, player);
     }
 }
 
@@ -265,6 +285,10 @@ void Level::draw(Graphics &graphics) {
 
     for (int i = 0; i != this->_animated_tile_list.size(); i++) {
         this->_animated_tile_list[i].draw(graphics);
+    }
+
+    for (int i = 0; i != this->_enemies.size(); i++) {
+        this->_enemies[i]->draw(graphics);
     }
 }
 
@@ -293,6 +317,16 @@ std::vector<Door> Level::check_door_collisions(const Rectangle &other) {
     for (auto door: this->_doors) {
         if (door.collides_with(other)) {
             others.push_back(door);
+        }
+    }
+    return others;
+}
+
+std::vector<Enemy*> Level::check_enemy_collisions(const Rectangle &other) {
+    std::vector<Enemy*> others;
+    for (auto enemy: this->_enemies) {
+        if (enemy->get_bounding_box().collides_with(other)) {
+            others.push_back(enemy);
         }
     }
     return others;
