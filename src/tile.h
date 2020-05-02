@@ -2,12 +2,10 @@
 #define TILE_H
 
 #include "globals.h"
-
-struct SDL_Texture;
-class Graphics;
+#include "graphics.h"
 
 class Tile {
-    private:
+    protected:
         SDL_Texture* _tileset;
         Vector2 _size;
         Vector2 _tileset_position;

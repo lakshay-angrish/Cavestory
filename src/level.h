@@ -5,6 +5,7 @@
 #include "tile.h"
 #include "rectangle.h"
 #include "slope.h"
+#include "animated_tile.h"
 
 #include <string>
 #include <vector>
@@ -26,7 +27,11 @@ class Level {
         std::vector<Rectangle> _collision_rects;
         std::vector<Slope> _slopes;
 
+        std::vector<AnimatedTile> _animated_tile_list;
+        std::vector<AnimatedTileInfo> _animated_tile_infos;
+
         void load_map(std::string map_name, Graphics& graphics);
+        Vector2 get_tileset_position(Tileset tls, int gid, int tile_width, int tile_height);
 
     public:
         Level();
