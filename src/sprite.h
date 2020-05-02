@@ -28,6 +28,15 @@ class Sprite {
         const Rectangle get_bounding_box() const;
         const sides::Side get_collision_side(const Rectangle& other) const;
 
+        const double get_x() const { return this->_x; }
+        const double get_y() const { return this->_y; }
+
+        void set_source_rect_x(int value);
+        void set_source_rect_y(int value);
+
+        void set_source_rect_width(int value);
+        void set_source_rect_height(int value);
+
 };
 
 #endif

@@ -27,8 +27,8 @@ void AnimatedTile::draw(Graphics &graphics) {
     SDL_Rect destination_rect = {
         this->_position.x,
         this->_position.y,
-        this->_size.x * globals::SPRITE_SCALE,
-        this->_size.y * globals::SPRITE_SCALE
+        int(this->_size.x * globals::SPRITE_SCALE),
+        int(this->_size.y * globals::SPRITE_SCALE)
     };
 
     SDL_Rect source_rect = {

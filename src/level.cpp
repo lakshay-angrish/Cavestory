@@ -12,9 +12,8 @@ using namespace tinyxml2;
 
 Level::Level() {}
 
-Level::Level(std::string map_name, Vector2 spawn_point, Graphics& graphics):
+Level::Level(std::string map_name, Graphics& graphics):
 _map_name(map_name),
-_spawn_point(spawn_point),
 _size(Vector2()) {
 
     this->load_map(map_name, graphics);
@@ -204,7 +203,7 @@ void Level::load_map(std::string map_name, Graphics &graphics) {
                 p_object = p_object->NextSiblingElement("object");
             }
 
-        } else if (group_name == "spawn point") {
+        } else if (group_name == "spawn points") {
             XMLElement* p_object = p_objectgroup->FirstChildElement("object");
             while (p_object) {
                 double x = p_object->DoubleAttribute("x");
@@ -216,6 +215,35 @@ void Level::load_map(std::string map_name, Graphics &graphics) {
                     break;
                 }
 
+                p_object = p_object->NextSiblingElement("object");
+            }
+        } else if (group_name == "doors") {
+            XMLElement* p_object = p_objectgroup->FirstChildElement("object");
+            while (p_object) {
+                double x = p_object->DoubleAttribute("x");
+                double y = p_object->DoubleAttribute("y");
+                double w = p_object->DoubleAttribute("width");
+                double h = p_object->DoubleAttribute("height");
+                Rectangle rect(x, y, w, h);
+
+                XMLElement* p_properties = p_object->FirstChildElement("properties");
+                while (p_properties) {
+                    XMLElement* p_property = p_properties->FirstChildElement("property");
+                    while (p_property) {
+                        const char* name = p_property->Attribute("name");
+                        std::string p_name(name);
+                        if (p_name == "destination") {
+                            const char* value = p_property->Attribute("value");
+                            std::string dest(value);
+                            Door door(rect, dest);
+                            this->_doors.push_back(door);
+                        }
+
+                        p_property = p_property->NextSiblingElement("property");
+                    }
+
+                    p_properties = p_properties->NextSiblingElement("properties");
+                }
                 p_object = p_object->NextSiblingElement("object");
             }
         }
@@ -255,6 +283,16 @@ std::vector<Slope> Level::check_slope_collisions(const Rectangle &other) {
     for (auto slope: this->_slopes) {
         if (slope.collides_with(other)) {
             others.push_back(slope);
+        }
+    }
+    return others;
+}
+
+std::vector<Door> Level::check_door_collisions(const Rectangle &other) {
+    std::vector<Door> others;
+    for (auto door: this->_doors) {
+        if (door.collides_with(other)) {
+            others.push_back(door);
         }
     }
     return others;

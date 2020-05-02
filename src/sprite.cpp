@@ -29,7 +29,7 @@ Sprite::~Sprite() {}
 
 void Sprite::draw (Graphics& graphics, int x, int y) {
     SDL_Rect destination_rect = {
-        x, y, this->_source_rect.w * globals::SPRITE_SCALE, this->_source_rect.h * globals::SPRITE_SCALE
+        x, y, int(this->_source_rect.w * globals::SPRITE_SCALE), int(this->_source_rect.h * globals::SPRITE_SCALE)
     };
 
     graphics.blit_surface(this->_sprite_sheet, &this->_source_rect, &destination_rect);
@@ -65,4 +65,20 @@ const sides::Side Sprite::get_collision_side(const Rectangle &other) const {
         lowest == amt_top ? sides::TOP:
         lowest == amt_bottom ? sides::BOTTOM:
         sides::NONE;
+}
+
+void Sprite::set_source_rect_x(int value) {
+    this->_source_rect.x = value;
+}
+
+void Sprite::set_source_rect_y(int value) {
+    this->_source_rect.y = value;
+}
+
+void Sprite::set_source_rect_width(int value) {
+    this->_source_rect.w = value;
+}
+
+void Sprite::set_source_rect_height(int value) {
+    this->_source_rect.h = value;
 }

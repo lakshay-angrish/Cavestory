@@ -3,8 +3,8 @@
 
 #include "player.h"
 #include "level.h"
-
-class Graphics;
+#include "hud.h"
+#include "graphics.h"
 
 class Game {
     private:
@@ -13,6 +13,9 @@ class Game {
         void draw (Graphics& graphics);
         Player _player;
         Level _level;
+        HUD _hud;
+        Graphics _graphics;
+
     public:
         Game();
         ~Game();

@@ -8,11 +8,15 @@ AnimatedSprite(graphics, "../assets/sprites/MyChar.png", 0, 0, 16, 16, spawn_poi
 _dx(0),
 _dy(0),
 _facing(RIGHT),
-_grounded(false) {
+_grounded(false),
+_looking_down(false),
+_looking_up(false),
+_max_health(3),
+_current_health(3) {
 
     graphics.load_image("../assets/sprites/MyChar.png");
     this->setup_animation();
-    this->play_animation("RunRight");
+    this->play_animation("IdleRight");
 }
 
 void Player::setup_animation() {
@@ -20,23 +24,78 @@ void Player::setup_animation() {
     this->add_animation(1, 0, 16, "IdleRight", 16, 16, Vector2(0, 0));
     this->add_animation(3, 0, 0, "RunLeft", 16, 16, Vector2(0, 0));
     this->add_animation(3, 0, 16, "RunRight", 16, 16, Vector2(0, 0));
+
+    this->add_animation(1, 3, 0, "IdleLeftUp", 16, 16, Vector2(0, 0));
+    this->add_animation(1, 3, 16, "IdleRightUp", 16, 16, Vector2(0, 0));
+    this->add_animation(3, 3, 0, "RunLeftUp", 16, 16, Vector2(0, 0));
+    this->add_animation(3, 3, 16, "RunRightUp", 16, 16, Vector2(0, 0));
+
+    this->add_animation(1, 6, 0, "LookDownLeft", 16, 16, Vector2(0, 0));
+    this->add_animation(1, 6, 16, "LookDownRight", 16, 16, Vector2(0, 0));
+
+    this->add_animation(1, 7, 0, "LookBackwardsLeft", 16, 16, Vector2(0, 0));
+    this->add_animation(1, 7, 16, "LookBackwardsRight", 16, 16, Vector2(0, 0));
 }
 
 void Player::move_left() {
+    if (this->_looking_down && this->_grounded)
+        return;
+
     this->_dx = -player_constants::WALK_SPEED;
     this->_facing = LEFT;
-    this->play_animation("RunLeft");
+
+    if (!this->_looking_up)
+        this->play_animation("RunLeft");
 }
 
 void Player::move_right() {
+    if (this->_looking_down && this->_grounded)
+        return;
+
     this->_dx = player_constants::WALK_SPEED;
     this->_facing = RIGHT;
-    this->play_animation("RunRight");
+
+    if (!this->_looking_up)
+        this->play_animation("RunRight");
 }
 
 void Player::stop_moving() {
     this->_dx = 0;
-    this->play_animation(this->_facing == LEFT ? "IdleLeft" : "IdleRight");
+
+    if (!this->_looking_up && !this->_looking_down)
+        this->play_animation(this->_facing == LEFT ? "IdleLeft" : "IdleRight");
+}
+
+void Player::look_up() {
+    this->_looking_up = true;
+    if (this->_dx == 0)
+        this->play_animation(this->_facing == LEFT ? "IdleLeftUp" : "IdleRightUp");
+    else
+        this->play_animation(this->_facing == LEFT ? "RunLeftUp" : "RunRightUp");
+}
+
+void Player::stop_looking_up() {
+    this->_looking_up = false;
+}
+
+void Player::look_down() {
+    this->_looking_down = true;
+    if (this->_grounded)
+        this->play_animation(this->_facing == LEFT ? "LookBackwardsLeft" : "LookBackwardsRight");
+    else
+        this->play_animation(this->_facing == LEFT ? "LookDownLeft" : "LookDownLeft");
+}
+
+void Player::stop_looking_down() {
+    this->_looking_down = false;
+}
+
+void Player::jump() {
+	if (this->_grounded) {
+		this->_dy = 0;
+		this->_dy -= player_constants::JUMP_SPEED;
+		this->_grounded = false;
+	}
 }
 
 void Player::animation_done(const std::string current_animation) {}
@@ -106,6 +165,16 @@ void Player::handle_slope_collisions(std::vector<Slope> &others) {
         if (this->_grounded) {
             this->_y = new_y - this->_bounding_box.get_height();
             this->_grounded = true;
+        }
+    }
+}
+
+void Player::handle_door_collision(std::vector<Door> &others, Level& level, Graphics& graphics) {
+    for (int i = 0; i != others.size(); i++) {
+        if (this->_looking_down && this->_grounded) {
+            level = Level(others[i].get_destination(), graphics);
+            this->_x = level.get_player_spawn_point().x;
+            this->_y = level.get_player_spawn_point().y;
         }
     }
 }
